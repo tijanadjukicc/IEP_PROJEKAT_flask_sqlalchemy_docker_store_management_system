@@ -1,7 +1,7 @@
 # Store Management System (Flask + SQLAlchemy + Docker)
 
 ## 📌 Overview
-This project is a **multi-user store management system** implemented as part of the IEP course.  
+This project is a **multi-user store management system** implemented as part of the **Electronic Business Infrastructure** course.  
 It allows **customers, couriers, and store owners** to interact with the store through REST APIs, with secure authentication and authorization using **JWT tokens**.  
 The system is containerized with **Docker** and orchestrated via **Docker Compose** for modular deployment.
 

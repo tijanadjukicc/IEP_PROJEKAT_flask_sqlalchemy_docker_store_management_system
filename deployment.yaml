@@ -1,0 +1,110 @@
+version: '3'
+
+services:
+  #auth
+  auth_db:
+    image: mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 10s
+      retries: 30
+    volumes:
+      - authData:/var/lib/mysql
+    networks:
+      - authNet
+  authDbMigration:
+    image: auth-db-migration
+    environment:
+      - DATABASE_URL=auth_db
+    depends_on:
+      auth_db:
+        condition: service_healthy
+    networks:
+      - authNet
+  auth:
+    image: auth
+    environment:
+      - DATABASE_URL=auth_db
+    depends_on:
+      - authDbMigration
+    networks:
+      - authNet
+    ports:
+      - 5002:5002
+  #---------------------------------------------
+  #store
+  store_db:
+    image: mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 10s
+      retries: 30
+    volumes:
+      - storeData:/var/lib/mysql
+    networks:
+      - storeNet
+  storeDbMigration:
+    image: store-db-migration
+    environment:
+      - DATABASE_URL=store_db
+    depends_on:
+      store_db:
+        condition: service_healthy
+    networks:
+      - storeNet
+  owner:
+    image: owner
+    environment:
+      - DATABASE_URL=store_db
+    depends_on:
+      - storeDbMigration
+    networks:
+      - storeNet
+    ports:
+      - 5003:5003
+  customer:
+    image: customer
+    environment:
+      - DATABASE_URL=store_db
+    depends_on:
+      - storeDbMigration
+    networks:
+      - storeNet
+    ports:
+      - 5004:5004
+  courier:
+    image: courier
+    environment:
+      - DATABASE_URL=store_db
+    depends_on:
+      - storeDbMigration
+    networks:
+      - storeNet
+    ports:
+      - 5005:5005
+  #---------------------------------------------
+  #adminer
+  adminer:
+    image: adminer
+    ports:
+      - 8080:8080
+    networks:
+      - authNet
+      - storeNet
+    depends_on:
+      auth_db:
+        condition: service_started
+      store_db:
+        condition: service_started
+
+volumes:
+  authData:
+  storeData:
+
+networks:
+  authNet:
+  storeNet:

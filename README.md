@@ -1,0 +1,1 @@
+# IEP_PROJEKAT_flask_sqlalchemy_docker_store_management_system
